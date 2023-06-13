@@ -76,7 +76,14 @@ def init_clients(args_, data_dir, logs_dir, chkpts_dir):
             logger=logger,
             local_steps=args_.local_steps,
             client_id=task_id,
-            save_path=os.path.join(chkpts_dir, "task_{}.pt".format(task_id))
+            save_path=os.path.join(chkpts_dir, "task_{}.pt".format(task_id)),
+            k=args_.n_neighbors,
+            interpolate_logits=False,
+            features_dimension=EMBEDDING_DIM[args_.experiment],
+            num_classes=N_CLASSES[args_.experiment],
+            capacity=-1,
+            strategy="random",
+            rng=np.random.default_rng(seed=42),
         )
 
         clients_.append(client)
