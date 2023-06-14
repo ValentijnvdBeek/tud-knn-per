@@ -129,7 +129,6 @@ class Aggregator(ABC):
         self.verbose = verbose
 
         self.c_round = 0
-        self.num_clients_until_logging = 0
 
     @abstractmethod
     def mix(self):
@@ -211,9 +210,7 @@ class Aggregator(ABC):
             global_logger.add_scalar("Train/Metric", global_train_acc, self.c_round)
             global_logger.add_scalar("Test/Loss", global_test_loss, self.c_round)
             global_logger.add_scalar("Test/Metric", global_test_acc, self.c_round)
-            global_logger.add_scalar("Clients/AccumulativeSizeUntilRound", self.num_clients_until_logging, self.c_round)
-
-            self.num_clients_until_logging = 0
+            global_logger.add_scalar("ClientsSampleSize", len(self.sampled_clients), self.c_round)
 
         if self.verbose > 0:
             print("#" * 80)
@@ -380,7 +377,6 @@ class NoCommunicationAggregator(Aggregator):
             client.step()
 
         self.c_round += 1
-        self.num_clients_until_logging += len(self.sampled_clients)
 
     def toggle_client(self, client_id, mode):
         pass
