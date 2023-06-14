@@ -173,7 +173,6 @@ def run_experiment(arguments_manager_):
         aggregator.mix()
 
         if (ii % args_.log_freq) == (args_.log_freq - 1):
-            aggregator.log_sample_size()
             aggregator.save_state(chkpts_dir)
             aggregator.write_logs()
 
