@@ -61,7 +61,6 @@ class ArgumentsManager(ABC):
             default=argparse.SUPPRESS
         )
 
-
     def parse_arguments(self, args_list=None):
         if args_list:
             args = self.parser.parse_args(args_list)
@@ -169,17 +168,6 @@ class TrainArgumentsManager(ArgumentsManager):
             help='verbosity level, `0` to quiet, `1` to show global logs and `2` to show local logs; default is `0`;',
             type=int,
             default=0
-        )
-        self.parser.add_argument(
-            'experiment',
-            help='name of experiment, possible are:'
-                 '{"cifar10", "cifar100", "femnist", "shakespeare"}',
-            type=str
-        )
-        self.parser.add_argument(
-            'n_neigbours',
-            help='number of neighbours',
-            default=5
         )
 
     def args_to_string(self):
