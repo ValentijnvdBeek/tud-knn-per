@@ -599,7 +599,6 @@ class KNNPerClient(Client):
         test_loss, test_acc = self.learner.evaluate_iterator(self.test_iterator)
 
         self.capacity = 1
-        self.compute_features_and_model_outputs()
 
         self.clear_datastore()
         self.build_datastore()
