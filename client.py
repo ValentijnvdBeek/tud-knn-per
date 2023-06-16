@@ -595,7 +595,7 @@ class KNNPerClient(Client):
 
         return acc
 
-    def evaluate_loss(self):
+    def evaluate_loss(self, weight, mode="test"):
         if mode == "train":
             flag = self.train_knn_outputs_flag
             knn_outputs = self.train_knn_outputs
