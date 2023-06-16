@@ -3,6 +3,7 @@ import numpy as np
 from datastore import *
 from utils.torch_utils import *
 from utils.constants import *
+from torch import nn
 
 from copy import deepcopy
 
@@ -593,6 +594,35 @@ class KNNPerClient(Client):
             acc = correct / total
 
         return acc
+
+    def evaluate_loss(self):
+        if mode == "train":
+            flag = self.train_knn_outputs_flag
+            knn_outputs = self.train_knn_outputs
+            model_outputs = self.train_model_outputs
+            labels = self.train_labels
+
+        else:
+            flag = self.test_knn_outputs_flag
+            knn_outputs = self.test_knn_outputs
+            model_outputs = self.test_model_outputs
+            labels = self.test_labels
+
+        if flag:
+            outputs = weight * knn_outputs + (1 - weight) * model_outputs
+        else:
+            warnings.warn("evaluation is done only with model outputs, datastore is empty", RuntimeWarning)
+            outputs = model_outputs
+
+        predictions = np.argmax(outputs, axis=1)
+
+        if len(labels) == 0:
+            loss = 0
+        else:
+            epsilon = 1e-12  # Small value to avoid division by zero
+            loss = -np.sum(labels * np.log(predictions + epsilon))
+
+        return loss
 
     def clear_datastore(self):
         """

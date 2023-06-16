@@ -4,6 +4,7 @@ from utils.args import TestArgumentsManager
 
 def eval_knnper_grid(client_, weights_grid_, capacities_grid_):
     client_results = np.zeros((len(weights_grid_), len(capacities_grid_)))
+    loss_results = np.zeros((len(weights_grid_), len(capacities_grid_)))
 
     for ii, capacity in enumerate(capacities_grid_):
         client_.capacity = capacity
@@ -13,8 +14,9 @@ def eval_knnper_grid(client_, weights_grid_, capacities_grid_):
 
         for jj, weight in enumerate(weights_grid_):
             client_results[jj, ii] = client_.evaluate(weight) * client_.n_test_samples
+            loss_results[jj, ii] = client_.evaluate_loss(weight) * client_.n_test_samples
 
-    return client_results
+    return client_results, loss_results
 
 
 def run(arguments_manager_):
@@ -47,6 +49,7 @@ def run(arguments_manager_):
     capacities_grid_ = np.arange(0., 1. + 1e-6, args_.capacities_grid_resolution)
 
     all_scores_ = []
+    all_losses_ = []
     n_test_samples_ = []
 
     _, train_loaders, test_loaders = \
@@ -89,16 +92,17 @@ def run(arguments_manager_):
         client.compute_features_and_model_outputs()
         client.clear_datastore()
 
-        client_scores = eval_knnper_grid(client, weights_grid_, capacities_grid_)
+        client_scores, loss_results = eval_knnper_grid(client, weights_grid_, capacities_grid_)
 
         n_test_samples_.append(client.n_test_samples)
 
         all_scores_.append(client_scores)
+        all_losses_.append(loss_results)
 
     all_scores_ = np.array(all_scores_)
     n_test_samples_ = np.array(n_test_samples_)
 
-    return all_scores_, n_test_samples_, weights_grid_, capacities_grid_
+    return all_scores_, all_losses_, n_test_samples_, weights_grid_, capacities_grid_
 
 
 if __name__ == "__main__":
@@ -108,7 +112,7 @@ if __name__ == "__main__":
     arguments_manager = TestArgumentsManager()
     arguments_manager.parse_arguments()
 
-    all_scores, n_test_samples, weights_grid, capacities_grid = run(arguments_manager)
+    all_scores, all_losses, n_test_samples, weights_grid, capacities_grid = run(arguments_manager)
 
     if "results_dir" in arguments_manager.args:
         results_dir = arguments_manager.args.results_dir
@@ -118,6 +122,7 @@ if __name__ == "__main__":
     os.makedirs(results_dir, exist_ok=True)
 
     np.save(os.path.join(results_dir, "all_scores.npy"), all_scores)
+    np.save(os.path.join(results_dir, "all_losses.npy"), all_losses)
     np.save(os.path.join(results_dir, "n_test_samples.npy"), n_test_samples)
     np.save(os.path.join(results_dir, "weights_grid.npy"), weights_grid)
     np.save(os.path.join(results_dir, "capacities_grid.npy"), capacities_grid)
