@@ -2,7 +2,8 @@ import string
 
 
 ALL_STRATEGIES = {
-    "random"
+    "random",
+    "stratified",
 }
 
 ALL_MODELS = {
